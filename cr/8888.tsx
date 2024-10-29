@@ -49,3 +49,39 @@ export const dispDataSelector = selector({
     return companyData;
   },
 });
+
+
+import React, { useState, useEffect } from 'react';
+import { useRecoilValue } from 'recoil';
+import { dispDataSelector } from './selectors';
+
+const MyComponent = ({ filterValue }) => {
+  const [dispData, setDispData] = useState(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      // ここでRecoilの値を非同期で取得
+      const data = useRecoilValue(dispDataSelector(filterValue));
+      setDispData(data);
+    };
+
+    loadData(); // useEffect内で非同期処理を実行
+  }, [filterValue]); // filterValueが変わるたびに再実行
+
+  return (
+    <div>
+      {dispData ? (
+        <ul>
+          {dispData.map((item, index) => (
+            <li key={index}>{item.name}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>データを読み込み中...</p>
+      )}
+    </div>
+  );
+};
+
+export default MyComponent;
+
