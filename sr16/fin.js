@@ -5,10 +5,10 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 (async () => {
   const baseURL = 'https://help.kaonavi.jp/hc/ja';
-  const categorySelector = 'a[href^="/hc/ja/categories"]';
-  const sectionSelector = 'a[href^="/hc/ja/sections"]';
-  const articleSelector = 'a[href^="/hc/ja/articles"]';
-  const paginationLastSelector = 'a.pagination-last-link'; // 最終ページリンクのセレクタ
+  const categorySelector = 'main a[href^="/hc/ja/categories"]'; // main要素内のカテゴリリンク
+  const sectionSelector = 'main a[href^="/hc/ja/sections"]'; // main要素内のセクションリンク
+  const articleSelector = 'main a[href^="/hc/ja/articles"]'; // main要素内の記事リンク
+  const paginationLastSelector = 'main a.pagination-last-link'; // 最終ページリンクのセレクタ
 
   const visitedURLs = new Set(); // 訪問済みのURLを記録
   const articleURLs = new Set(); // 記事URLを格納
@@ -96,6 +96,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       );
       console.log(`カテゴリリンク数: ${categoryLinks.length}`);
       for (const link of categoryLinks) {
+        console.log(`カテゴリリンクを処理: ${link}`);
         await scrapePage(link);
       }
 
@@ -105,12 +106,13 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       );
       console.log(`セクションリンク数: ${sectionLinks.length}`);
       for (const link of sectionLinks) {
+        console.log(`セクションリンクを処理: ${link}`);
         await scrapePaginatedSection(link);
       }
 
-      // すべてのリンクを再確認して漏れを防ぐ
+      // 追加リンク収集で漏れを防ぐ
       const additionalLinks = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll('a[href*="/hc/ja/"]'))
+        return Array.from(document.querySelectorAll('main a[href*="/hc/ja/"]'))
           .map(link => link.href);
       });
 
@@ -138,7 +140,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // 結果をファイルに保存
     const fs = require('fs');
-    fs.writeFileSync('article_urls.txt', [...articleURLs].join('\n'), 'utf-8');
+    fs.writeFileSync('article_urls3.txt', [...articleURLs].join('\n'), 'utf-8');
     console.log('記事URLを article_urls.txt に保存しました');
   } catch (error) {
     console.error('処理中にエラーが発生しました:', error);
